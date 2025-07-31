@@ -14,7 +14,7 @@ import {z} from 'genkit';
 const GenerateLinkedInPostInputSchema = z.object({
   description: z.string().describe('The description or title of the LinkedIn post.'),
   instructions: z.string().describe('Instructions for generating the LinkedIn post content.'),
-  image: z.string().describe('URL of an image to include in the post.'),
+  image: z.string().describe('A prompt or URL for an image to include in the post.'),
 });
 export type GenerateLinkedInPostInput = z.infer<typeof GenerateLinkedInPostInputSchema>;
 
@@ -34,18 +34,40 @@ const generateLinkedInPostPrompt = ai.definePrompt({
   output: {schema: GenerateLinkedInPostOutputSchema},
   prompt: `You are an AI assistant specialized in generating engaging LinkedIn posts.
 
-  Based on the provided description, instructions, and image, create a compelling LinkedIn post.
+  Based on the provided description, instructions, and image prompt/URL, create a compelling LinkedIn post.
 
   Description: {{{description}}}
   Instructions: {{{instructions}}}
-  Image URL: {{{image}}}
+  Image Prompt/URL: {{{image}}}
 
   Ensure the post is professional, informative, and likely to capture the attention of LinkedIn users.
   Return the generated post content and the image URL.
 
   {{#if image}}
+  If the user provided a URL in the 'Image Prompt/URL' field, use that as the imageUrl in the output. If they provided a prompt, generate an image based on that prompt and use the resulting URL. If no image prompt or URL is provided, use 'https://placehold.co/1200x628.png'.
   The image URL is: {{image}}
+  {{else}}
+  The image URL is: https://placehold.co/1200x628.png
   {{/if}}`,
+});
+
+const generateImagePrompt = ai.definePrompt({
+  name: 'generateImagePrompt',
+  input: {
+    schema: z.object({
+      prompt: z.string(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      imageUrl: z.string(),
+    }),
+  },
+  prompt: `Generate an image for a LinkedIn post based on the following prompt: {{{prompt}}}`,
+  model: 'googleai/gemini-2.0-flash-preview-image-generation',
+  config: {
+    responseModalities: ['TEXT', 'IMAGE'],
+  },
 });
 
 const generateLinkedInPostFlow = ai.defineFlow(
@@ -55,7 +77,33 @@ const generateLinkedInPostFlow = ai.defineFlow(
     outputSchema: GenerateLinkedInPostOutputSchema,
   },
   async input => {
-    const {output} = await generateLinkedInPostPrompt(input);
-    return output!;
+    let imageUrl = 'https://placehold.co/1200x628.png';
+
+    if (input.image) {
+      const isUrl = input.image.startsWith('http://') || input.image.startsWith('https://');
+      if (isUrl) {
+        imageUrl = input.image;
+      } else {
+        // It's a prompt, so generate an image
+        const { media } = await ai.generate({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: input.image,
+          config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+          },
+        });
+        if (media?.url) {
+          imageUrl = media.url;
+        }
+      }
+    }
+
+    const postGenInput = { ...input, image: imageUrl };
+    const { output } = await generateLinkedInPostPrompt(postGenInput);
+    
+    return {
+      postContent: output?.postContent ?? '',
+      imageUrl: imageUrl,
+    };
   }
 );

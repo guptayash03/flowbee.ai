@@ -47,7 +47,7 @@ interface GeneratedPost {
 const formSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters long."),
   instructions: z.string().min(10, "Instructions must be at least 10 characters long."),
-  image: z.string().url("Please enter a valid image URL.").optional().or(z.literal('')),
+  image: z.string().optional(),
 });
 
 export default function Home() {
@@ -274,9 +274,9 @@ export default function Home() {
                       name="image"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Image Source URL (Optional)</FormLabel>
+                          <FormLabel>Image Prompt / URL (Optional)</FormLabel>
                           <FormControl>
-                            <Input placeholder="https://placehold.co/1200x628.png" {...field} />
+                            <Input placeholder="A photorealistic image of a robot writing a social media post, or a URL." {...field} />
                           </FormControl>
                            <FormMessage />
                         </FormItem>

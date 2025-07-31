@@ -19,23 +19,14 @@ export async function POST(req: Request) {
     // Simulate the asynchronous workflow without blocking the response
     (async () => {
       try {
-        // Use a default placeholder image if none is provided
-        const imageUrl = image || 'https://placehold.co/1200x628.png';
-
         const result = await generateLinkedInPost({
           description,
           instructions,
-          image: imageUrl,
+          image: image || '', // Pass image prompt or URL
         });
 
-        // Ensure the imageUrl in the result is the one we used
-        const finalResult = {
-          ...result,
-          imageUrl: imageUrl,
-        };
-
         // Update the job status to "completed" with the result
-        executions.set(executionId, { status: 'completed', data: finalResult });
+        executions.set(executionId, { status: 'completed', data: result });
       } catch (error) {
         console.error('Error during background generation:', error);
         // Update the job status to "failed"
