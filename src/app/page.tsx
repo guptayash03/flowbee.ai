@@ -215,7 +215,7 @@ export default function Home() {
       <header className="flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-2">
           <Bot className="w-8 h-8 text-primary" />
-          <h1 className="text-2xl font-bold font-headline text-primary">LinkedEase</h1>
+          <h1 className="text-2xl font-bold font-headline text-primary">flowbee.ai</h1>
         </div>
         <Button onClick={handleSignIn} disabled={!!linkedinAuthToken}>
           <User className="mr-2 h-4 w-4" />

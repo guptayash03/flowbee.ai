@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'LinkedEase - AI LinkedIn Post Generator',
+  title: 'flowbee.ai - AI LinkedIn Post Generator',
   description: 'Generate and publish LinkedIn posts with AI',
 };
 
