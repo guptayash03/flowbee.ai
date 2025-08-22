@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { description, instructions, image } = body;
 
-    if (!description || !instructions) {
+    if (!description) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       try {
         const result = await generateLinkedInPost({
           description,
-          instructions,
+          instructions: instructions || '',
           image: image || '', // Pass image prompt or URL
         });
 

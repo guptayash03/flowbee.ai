@@ -46,7 +46,7 @@ interface GeneratedPost {
 
 const formSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters long."),
-  instructions: z.string().min(10, "Instructions must be at least 10 characters long."),
+  instructions: z.string().optional(),
   image: z.string().optional(),
 });
 
@@ -257,7 +257,7 @@ export default function Home() {
                       name="instructions"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Post Instructions</FormLabel>
+                          <FormLabel>Post Instructions (Optional)</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="e.g., 'Write in a friendly and exciting tone. Include 3 bullet points about the benefits. Add relevant hashtags like #AI #DataAnalytics.'"
